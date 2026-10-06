@@ -658,16 +658,17 @@
     // -------------------------------------------------------------------------
     // 2. FIREBASE CONFIG & STATE INITIALIZATION
     // -------------------------------------------------------------------------
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'fb-hygiene-app-v4';
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'fnb-hygiene-system';
     const firebaseConfig = typeof __firebase_config !== 'undefined' 
       ? JSON.parse(__firebase_config) 
       : {
-          apiKey: "AIzaSyDummyKeyForFallbackInPreview",
-          authDomain: "fb-hygiene-app.firebaseapp.com",
-          projectId: "fb-hygiene-app",
-          storageBucket: "fb-hygiene-app.appspot.com",
-          messagingSenderId: "1234567890",
-          appId: "1:1234567890:web:abcdef123456"
+          apiKey: "AIzaSyDFheEiLfPnhXUffFuHlhqXU26sZtEHLFA",
+          authDomain: "fnb-hygiene-system.firebaseapp.com",
+          projectId: "fnb-hygiene-system",
+          storageBucket: "fnb-hygiene-system.firebasestorage.app",
+          messagingSenderId: "338509961741",
+          appId: "1:338509961741:web:828fb288f0dcb3767c9344",
+          measurementId: "G-VP8S6PR0Q6"
         };
 
     // Initialize Firebase
