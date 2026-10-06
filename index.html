@@ -551,7 +551,7 @@
       </div>
 
       <div class="space-y-3">
-        <input type="password" id="admin-password-input" placeholder="비밀번호 입력 (기본: 1234)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-center tracking-widest text-white focus:outline-none focus:border-zinc-500" onkeyup="if(event.key==='Enter') submitAdminAuth()" />
+        <input type="password" id="admin-password-input" placeholder="비밀번호 입력" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-center tracking-widest text-white focus:outline-none focus:border-zinc-500" onkeyup="if(event.key==='Enter') submitAdminAuth()" />
         <p id="admin-auth-error" class="text-xs text-red-400 text-center hidden">비밀번호가 올바르지 않습니다.</p>
       </div>
 
@@ -1023,7 +1023,7 @@
 
     function submitAdminAuth() {
       const pw = document.getElementById('admin-password-input').value;
-      if (pw === '1234') {
+      if (pw === '0401') {
         isAdminAuthenticated = true;
         closeAdminAuthModal();
         switchMode('admin');
