@@ -518,7 +518,7 @@
       </div>
 
       <div class="space-y-3">
-        <input type="password" id="admin-password-input" placeholder="비밀번호 입력 (기본: 1234)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-center tracking-widest text-white focus:outline-none focus:border-zinc-500" onkeyup="if(event.key==='Enter') window.submitAdminAuth()" />
+        <input type="password" id="admin-password-input" placeholder="비밀번호 입력" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-center tracking-widest text-white focus:outline-none focus:border-zinc-500" onkeyup="if(event.key==='Enter') window.submitAdminAuth()" />
         <p id="admin-auth-error" class="text-xs text-red-400 text-center hidden">비밀번호가 올바르지 않습니다.</p>
       </div>
 
@@ -568,7 +568,7 @@
       '여의반상', '도쿄다이몬', '곡분', '럭키분식', '터프버거', '더데일리팟',
       '랩더스위트', '온미', '스시다이몬', '쿠차라', '소희원', '루이키친',
       '뮤제오', '아우어베이커리', '드래프트128', '던킨', '카페바이랩',
-      '강서식당', '오로모', '라코펠라 1층', '라코펠라 2층'
+      '강서식당', '오로모', '라코펠라'
     ];
 
     // EXACT 50 CHECKLIST ITEMS SCHEMA BASED ON ATTACHED SPEC
@@ -997,7 +997,7 @@
 
     window.submitAdminAuth = function() {
       const pwd = document.getElementById('admin-password-input').value;
-      if (pwd === '1234') {
+      if (pwd === '0401') {
         window.closeAdminAuthModal();
         window.switchMode('admin');
         showToast('관리자 인증에 성공하였습니다.', 'success');
