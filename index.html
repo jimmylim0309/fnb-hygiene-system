@@ -264,7 +264,7 @@
                   <th class="py-3 px-4 min-w-[220px]">점검 항목 및 세부기준</th>
                   <th class="py-3 px-4 w-16 text-center">배점</th>
                   <th class="py-3 px-4 w-60 text-center">평가 (선택)</th>
-                  <th class="py-3 px-4 min-w-[200px]">매장 평가결과 / 개선계획 (I열)</th>
+                  <th class="py-3 px-4 min-w-[200px]">매장 평가결과 / 개선계획</th>
                 </tr>
               </thead>
               <tbody id="checklist-items-body" class="divide-y divide-zinc-800/60 bg-zinc-900/50">
@@ -815,7 +815,7 @@
               </select>
             </td>
             <td class="py-3 px-4">
-              <input type="text" data-id="${item.id}" placeholder="평가결과/개선계획 입력 (선택)" class="item-eval-input w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-zinc-600" />
+              <input type="text" data-id="${item.id}" placeholder="미비사항/개선계획 입력 (선택)" class="item-eval-input w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-zinc-600" />
             </td>
           `;
           tbody.appendChild(row);
@@ -1049,7 +1049,7 @@
         dates.push(d.toISOString().split('T')[0]);
       }
 
-      headerRow.innerHTML = `<th class="py-3 px-3 text-left min-w-[130px] sticky left-0 bg-zinc-950 z-10 border-r border-zinc-800">매장명 (21개)</th>`;
+      headerRow.innerHTML = `<th class="py-3 px-3 text-left min-w-[130px] sticky left-0 bg-zinc-950 z-10 border-r border-zinc-800">매장명 (20개)</th>`;
       dates.forEach(date => {
         const dayLabel = date.slice(5);
         const th = document.createElement('th');
