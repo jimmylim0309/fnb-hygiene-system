@@ -1002,14 +1002,21 @@
       }, 3000);
     }
 
+    // 한국 표준시(KST: UTC+9) 기준 오늘 날짜 문자열(YYYY-MM-DD)을 반환하는 함수
+    function getKSTDateString(dateObj = new Date()) {
+      const kstTime = new Date(dateObj.getTime() + (9 * 60 * 60 * 1000));
+      return kstTime.toISOString().split('T')[0];
+    }
+
     function checkDateDelayedStatus() {
       const selectedDate = document.getElementById('form-inspection-date')?.value;
       const warningTag = document.getElementById('date-delay-warning-tag');
       
       if (!selectedDate || !warningTag) return false;
 
-      const todayStr = new Date().toISOString().split('T')[0];
-      const isDelayed = selectedDate < todayStr;
+      // 한국시간(KST) 기준 당일 23:59 지나기 전까지는 당일 정상으로 처리
+      const todayKST = getKSTDateString();
+      const isDelayed = selectedDate < todayKST;
 
       if (isDelayed) {
         warningTag.classList.remove('hidden');
@@ -1201,21 +1208,21 @@
     }
 
     function setTodayDateDefault() {
-      const today = new Date().toISOString().split('T')[0];
+      const todayKST = getKSTDateString();
       const dateInput = document.getElementById('form-inspection-date');
       if (dateInput) {
-        dateInput.value = today;
+        dateInput.value = todayKST;
       }
       checkDateDelayedStatus();
 
       const past14 = new Date();
       past14.setDate(past14.getDate() - 13);
-      const past14Str = past14.toISOString().split('T')[0];
+      const past14Str = getKSTDateString(past14);
 
       if (document.getElementById('history-filter-start')) document.getElementById('history-filter-start').value = past14Str;
-      if (document.getElementById('history-filter-end')) document.getElementById('history-filter-end').value = today;
+      if (document.getElementById('history-filter-end')) document.getElementById('history-filter-end').value = todayKST;
       if (document.getElementById('admin-search-start')) document.getElementById('admin-search-start').value = past14Str;
-      if (document.getElementById('admin-search-end')) document.getElementById('admin-search-end').value = today;
+      if (document.getElementById('admin-search-end')) document.getElementById('admin-search-end').value = todayKST;
     }
 
     function populateStoreDropdowns() {
@@ -1492,8 +1499,9 @@
       const inspector = document.getElementById('form-inspector').value.trim();
       const inspectionDate = document.getElementById('form-inspection-date').value;
 
-      const todayStr = new Date().toISOString().split('T')[0];
-      const isDelayed = inspectionDate < todayStr;
+      // 한국시간(KST) 23:59 경과 여부 기준 지연 판단 (선택일 < 오늘 KST 일자)
+      const todayKST = getKSTDateString();
+      const isDelayed = inspectionDate < todayKST;
 
       const itemsData = {};
       const selects = document.querySelectorAll('.item-status-select');
@@ -1602,7 +1610,8 @@
 
       logs.forEach(log => {
         const hasComment = log.admin_comment && log.admin_comment.trim().length > 0;
-        const isDelayed = log.is_delayed || (log.created_at && log.inspection_date < log.created_at.slice(0, 10));
+        const todayKST = getKSTDateString();
+        const isDelayed = log.is_delayed !== undefined ? log.is_delayed : (log.inspection_date < (log.created_at ? getKSTDateString(new Date(log.created_at)) : todayKST));
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-zinc-800/40 transition-colors border-b border-zinc-800/40';
