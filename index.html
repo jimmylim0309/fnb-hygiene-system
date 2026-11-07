@@ -274,9 +274,10 @@
               <i data-lucide="clipboard-list" class="w-5 h-5 text-zinc-300"></i>
               기본 점검 정보
             </h2>
-            <span class="text-xs px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700 font-mono">
-              당일 점검 규칙 적용
-            </span>
+            <div id="date-delay-warning-tag" class="hidden text-xs px-2.5 py-1 rounded-full bg-orange-950 border border-orange-700 text-orange-400 font-medium flex items-center gap-1">
+              <i data-lucide="clock" class="w-3 h-3"></i>
+              지연 제출 (과거 날짜 점검)
+            </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -294,12 +295,15 @@
               <input type="text" id="form-inspector" placeholder="점검자 이름 입력" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 transition-all" />
             </div>
 
-            <!-- Inspection Date -->
+            <!-- Inspection Date (수정 가능으로 변경됨) -->
             <div>
-              <label class="block text-xs font-medium text-zinc-400 mb-1.5">점검일자 (자동고정)</label>
+              <div class="flex justify-between items-center mb-1.5">
+                <label class="block text-xs font-medium text-zinc-400">점검일자 <span class="text-red-400">*</span></label>
+                <span class="text-[10px] text-zinc-500">지연 작성 가능</span>
+              </div>
               <div class="relative">
-                <input type="date" id="form-inspection-date" readonly class="w-full bg-zinc-950/60 border border-zinc-800/80 rounded-xl px-3.5 py-2.5 text-sm text-zinc-400 cursor-not-allowed focus:outline-none" />
-                <i data-lucide="lock" class="w-4 h-4 text-zinc-600 absolute right-3 top-3"></i>
+                <input type="date" id="form-inspection-date" onchange="checkDateDelayedStatus()" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition-all cursor-pointer" />
+                <i data-lucide="calendar" class="w-4 h-4 text-zinc-400 absolute right-3 top-3 pointer-events-none"></i>
               </div>
             </div>
           </div>
@@ -338,10 +342,10 @@
 
           <div class="p-5 bg-zinc-950 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="text-xs text-zinc-400 flex items-center gap-2">
-              <i data-lucide="info" class="w-4 h-4 text-zinc-500"></i>
-              제출 후에는 항목 수정이 불가능하므로 정확하게 확인 후 제출해 주세요.
+              <i data-lucide="help-circle" class="w-4 h-4 text-amber-400"></i>
+              제출 시 위생 퀴즈 1문항 확인 팝업이 호출됩니다. (오답이어도 제출 가능)
             </div>
-            <button id="submit-inspection-btn" onclick="submitInspection()" class="w-full sm:w-auto px-8 py-3 bg-white hover:bg-zinc-200 text-zinc-950 font-bold rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2">
+            <button id="submit-inspection-btn" onclick="startSubmissionFlow()" class="w-full sm:w-auto px-8 py-3 bg-white hover:bg-zinc-200 text-zinc-950 font-bold rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2">
               <i data-lucide="send" class="w-4 h-4"></i>
               위생점검표 제출하기
             </button>
@@ -394,6 +398,7 @@
                   <th class="py-3 px-4">매장명</th>
                   <th class="py-3 px-4">점검자</th>
                   <th class="py-3 px-4 text-center">점수</th>
+                  <th class="py-3 px-4 text-center">제출 구분</th>
                   <th class="py-3 px-4 text-center">관리자 첨언 여부</th>
                   <th class="py-3 px-4 text-right">상세조회 / PDF</th>
                 </tr>
@@ -483,10 +488,11 @@
               <i data-lucide="calendar-range" class="w-5 h-5 text-zinc-300"></i>
               지난 2주간 매장별 점검 제출 현황 (14일)
             </h3>
-            <p class="text-xs text-zinc-400 mt-0.5">미제출 매장은 <span class="text-red-400 font-bold underline">빨간색 하이라이트</span>로 강조 표시됩니다.</p>
+            <p class="text-xs text-zinc-400 mt-0.5">날짜가 지나 수행된 점검표는 <span class="text-orange-400 font-bold underline">오렌지색 뱃지</span>로 표시됩니다.</p>
           </div>
-          <div class="flex items-center gap-3 text-xs">
-            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-950 border border-emerald-700"></span><span class="text-zinc-400">제출완료</span></div>
+          <div class="flex items-center gap-3 text-xs flex-wrap">
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-950 border border-emerald-700"></span><span class="text-zinc-400">당일 제출</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-orange-950 border border-orange-700"></span><span class="text-orange-400 font-bold">지연 제출 (오렌지)</span></div>
             <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-red-950/80 border border-red-800"></span><span class="text-red-400 font-bold">미제출 경고</span></div>
           </div>
         </div>
@@ -542,6 +548,7 @@
                 <th class="py-3 px-4">매장명</th>
                 <th class="py-3 px-4">점검자</th>
                 <th class="py-3 px-4 text-center">점수</th>
+                <th class="py-3 px-4 text-center">제출상태</th>
                 <th class="py-3 px-4">관리자 첨언 현황</th>
                 <th class="py-3 px-4 text-right">작업</th>
               </tr>
@@ -589,7 +596,10 @@
         <div class="border-b border-zinc-800 pdf-border pb-5 space-y-3">
           <div class="flex justify-between items-start">
             <div>
-              <h2 class="text-xl font-bold text-white pdf-text-dark">F&B 위생·안전점검 체크리스트</h2>
+              <div class="flex items-center gap-2">
+                <h2 class="text-xl font-bold text-white pdf-text-dark">F&B 위생·안전점검 체크리스트</h2>
+                <span id="modal-delayed-badge" class="hidden text-xs px-2 py-0.5 rounded bg-orange-950 text-orange-400 border border-orange-800 font-bold">지연 작성됨</span>
+              </div>
               <p class="text-xs text-zinc-400 pdf-text-dark">F&B 사업부 품질안전 관리 표준 양식</p>
             </div>
             <div class="text-right">
@@ -706,6 +716,59 @@
     </div>
   </div>
 
+  <!-- MODAL 5: SUBMISSION QUIZ POPUP MODAL (신규 추가) -->
+  <div id="quiz-submission-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-zinc-900 border border-amber-500/40 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative overflow-hidden">
+      
+      <!-- Top Decor Header -->
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+            <i data-lucide="help-circle" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">제출 전 위생 퀴즈 확인</h3>
+            <p class="text-[11px] text-zinc-400">식품위생 필수 지식 팝업 (오답이어도 제출 가능)</p>
+          </div>
+        </div>
+        <button onclick="cancelQuizSubmission()" class="p-1 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 transition-all">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Question Text -->
+      <div class="space-y-2">
+        <span class="text-[11px] font-mono font-bold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-800/80">RANDOM QUIZ</span>
+        <h4 id="quiz-question-text" class="text-sm font-bold text-zinc-100 leading-relaxed pt-1">
+          질문 로딩 중...
+        </h4>
+      </div>
+
+      <!-- Quiz Options List -->
+      <div id="quiz-options-container" class="space-y-2">
+        <!-- Dynamic Option Buttons -->
+      </div>
+
+      <!-- Quiz Result / Explanation Feedback Box -->
+      <div id="quiz-feedback-box" class="p-3.5 rounded-xl border text-xs space-y-1.5 hidden">
+        <div id="quiz-result-header" class="font-bold flex items-center gap-1.5"></div>
+        <p id="quiz-result-explanation" class="text-zinc-300 leading-relaxed"></p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end gap-2 pt-2 border-t border-zinc-800">
+        <button onclick="cancelQuizSubmission()" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold rounded-xl transition-all">
+          취소
+        </button>
+        <button id="quiz-submit-action-btn" onclick="submitQuizAnswer()" disabled class="px-6 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-950 text-xs font-bold rounded-xl transition-all shadow-lg flex items-center gap-1">
+          <span>정답 확인 및 제출하기</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Toast Notification Box -->
   <div id="toast-notification" class="fixed bottom-6 right-6 z-50 bg-zinc-100 text-zinc-950 px-4 py-3 rounded-xl shadow-2xl font-medium text-xs flex items-center gap-2 transition-all transform translate-y-20 opacity-0 pointer-events-none">
     <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
@@ -719,6 +782,52 @@
       '랩더스위트', '온미', '스시다이몬', '쿠차라', '소희원', '루이키친',
       '뮤제오', '아우어베이커리', '드래프트128', '던킨', '카페바이랩',
       '강서식당', '오로모', '라코펠라'
+    ];
+
+    // 식품위생 퀴즈 문제은행 팝업용 데이터셋 (식품위생법 및 안전 기준 기반)
+    const HYGIENE_QUIZ_BANK = [
+      {
+        question: "튀김유 재사용 시 산가(Acid Value)의 관리기준으로 올바른 것은 무엇인가요?",
+        options: ["1.5 이하", "2.5 이하", "4.0 이하", "5.0 이하"],
+        answerIndex: 1,
+        explanation: "튀김유의 산가 관리기준은 2.5 이하입니다. 2.5를 초과하는 경우 즉시 교체해야 합니다."
+      },
+      {
+        question: "가열조리 시 가열 미생물 사멸을 위한 중심온도 및 시간 기준은 얼마인가요?",
+        options: ["70℃ 이상, 30초 이상", "75℃ 이상, 1분 이상 (육류 등 기준 85℃ 1분)", "60℃ 이상, 5분 이상", "90℃ 이상, 10분 이상"],
+        answerIndex: 1,
+        explanation: "가열 조리 시 음식물의 중심온도는 최소 75℃ 이상에서 1분 이상(패류/조류 등 85℃ 1분) 가열해야 합니다."
+      },
+      {
+        question: "식품 취급자의 보건증(건강진단결과서) 정기 갱신 주기 기준은 얼마인가요?",
+        options: ["6개월에 1회", "1년에 1회", "2년에 1회", "3년에 1회"],
+        answerIndex: 1,
+        explanation: "식품위생법상 일반 식품영업 종사자의 건강진단(보건증) 유효기간은 판정일로부터 1년입니다."
+      },
+      {
+        question: "식재료 냉장 보관 온도의 표준 기준으로 적절한 것은 무엇인가요?",
+        options: ["0℃ ~ 10℃ 이하", "10℃ ~ 15℃ 이하", "-5℃ ~ 0℃ 이하", "15℃ ~ 20℃ 이하"],
+        answerIndex: 0,
+        explanation: "냉장 식품은 미생물 증식을 억제하기 위해 0 ~ 10℃ 이하로 보관 및 관리해야 합니다."
+      },
+      {
+        question: "냉동 식재료의 올바른 해동 방법으로 옳지 않은 것은 무엇인가요?",
+        options: ["냉장고 내(10℃ 이하)에서 해동", "흐르는 찬물(21℃ 이하)에서 해동", "상온의 작업대 위에 장시간 방치하여 해동", "전자레인지(마이크로웨이브)를 이용한 즉시 해동"],
+        answerIndex: 2,
+        explanation: "상온 방치 해동은 식재료 표면 세균 폭발 증식의 원인이 되므로 금지되며 냉장해동이나 유수해동을 해야 합니다."
+      },
+      {
+        question: "칼, 도마 등 조리도구 교차오염 방지를 위한 용도별 구분 색상 매칭으로 옳지 않은 것은?",
+        options: ["적색 - 육류", "청색 - 어패류", "녹색 - 채소/과일류", "황색 - 하수구 청소용"],
+        answerIndex: 3,
+        explanation: "황색 도마/칼은 주로 조리된 식품(가열식품) 구분에 사용하며, 청소용 집기류와 식품용 집기는 엄격히 구분해야 합니다."
+      },
+      {
+        question: "원산지 표시제도에 따라 영수증이나 메뉴판에 반드시 표기해야 하는 품목이 아닌 것은?",
+        options: ["쇠고기, 돼지고기, 닭고기", "쌀, 배추김치", "오징어, 낙지, 명태", "설탕, 소금"],
+        answerIndex: 3,
+        explanation: "소금과 설탕은 일반 조미료로 음식점 원산지 필수 게시 20개 대상 품목에 포함되지 않습니다."
+      }
     ];
 
     const CHECKLIST_SCHEMA = [
@@ -808,7 +917,12 @@
     let isAdminAuthenticated = false;
     let activeInspectionRecord = null;
     let cachedInspectionLogs = [];
-    let cachedNoticeList = []; // 누적 공지사항 목록 배열
+    let cachedNoticeList = [];
+
+    // Quiz 제출 플로우용 임시 변수
+    let activeQuizObj = null;
+    let selectedQuizOptionIndex = null;
+    let isQuizAnswered = false;
 
     window.addEventListener('DOMContentLoaded', () => {
       populateStoreDropdowns();
@@ -851,7 +965,7 @@
         searchStoreHistory();
       });
 
-      // 2. 공지사항 실시간 누적 수신 (created_at 내림차순 정렬)
+      // 2. 공지사항 실시간 누적 수신
       const noticeQuery = query(collection(window.firebaseDb, "notices"), orderBy("created_at", "desc"));
       onSnapshot(noticeQuery, (snapshot) => {
         cachedNoticeList = [];
@@ -888,7 +1002,23 @@
       }, 3000);
     }
 
-    // 공지사항 통합 UI 렌더링 함수 (매장 배너, 뱃지, 관리자 목록 전체)
+    function checkDateDelayedStatus() {
+      const selectedDate = document.getElementById('form-inspection-date')?.value;
+      const warningTag = document.getElementById('date-delay-warning-tag');
+      
+      if (!selectedDate || !warningTag) return false;
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const isDelayed = selectedDate < todayStr;
+
+      if (isDelayed) {
+        warningTag.classList.remove('hidden');
+      } else {
+        warningTag.classList.add('hidden');
+      }
+      return isDelayed;
+    }
+
     function renderNoticeUI() {
       const dateEl = document.getElementById('notice-display-date');
       const contentEl = document.getElementById('notice-display-content');
@@ -900,7 +1030,6 @@
       if (storeBadge) storeBadge.textContent = totalCount;
       if (adminCount) adminCount.textContent = `총 ${totalCount}건`;
 
-      // 1. 매장 모드 최신 공지 렌더링 (배너)
       if (totalCount > 0) {
         const latest = cachedNoticeList[0];
         const displayDate = latest.date || (latest.created_at ? latest.created_at.slice(0, 10) : '최신');
@@ -911,7 +1040,6 @@
         if (contentEl) contentEl.textContent = '현재 등록된 관리자 공지사항이 없습니다.';
       }
 
-      // 2. 관리자 모드 공지사항 히스토리 목록 렌더링
       if (adminListWrap) {
         adminListWrap.innerHTML = '';
         if (totalCount === 0) {
@@ -947,7 +1075,6 @@
       initLucide();
     }
 
-    // 로컬 스토리지 공지사항 목록 로드 fallback
     function loadLocalNotices() {
       try {
         const saved = localStorage.getItem('fb_hygiene_notices_list');
@@ -967,7 +1094,6 @@
       localStorage.setItem('fb_hygiene_notices_list', JSON.stringify(cachedNoticeList));
     }
 
-    // 신규 공지사항 추가 등록 (관리자 기능)
     async function saveNoticeFromAdmin() {
       const input = document.getElementById('admin-notice-input');
       if (!input) return;
@@ -1014,7 +1140,6 @@
       }
     }
 
-    // 개별 공지사항 삭제
     async function deleteSingleNotice(noticeId) {
       try {
         if (window.firebaseDb && window.fbTools && !noticeId.startsWith('local_')) {
@@ -1035,7 +1160,6 @@
       }
     }
 
-    // 매장 모드: 전체 공지사항 모달 열기
     function openNoticeHistoryModal() {
       const container = document.getElementById('store-notice-modal-list');
       if (!container) return;
@@ -1082,6 +1206,7 @@
       if (dateInput) {
         dateInput.value = today;
       }
+      checkDateDelayedStatus();
 
       const past14 = new Date();
       past14.setDate(past14.getDate() - 13);
@@ -1212,7 +1337,12 @@
       return finalScore;
     }
 
-    async function submitInspection() {
+    // =========================================================================
+    // QUIZ POPUP & SUBMISSION FLOW LOGIC
+    // =========================================================================
+
+    // 1단계: 점검표 필수 정보 입력 검증 후 랜덤 퀴즈 팝업 표시
+    function startSubmissionFlow() {
       const storeName = document.getElementById('form-store-name').value;
       const inspector = document.getElementById('form-inspector').value.trim();
       const inspectionDate = document.getElementById('form-inspection-date').value;
@@ -1225,6 +1355,145 @@
         showToast('점검자 이름을 입력해 주세요.');
         return;
       }
+      if (!inspectionDate) {
+        showToast('점검일자를 선택해 주세요.');
+        return;
+      }
+
+      openSubmissionQuizModal();
+    }
+
+    // 2단계: 퀴즈 모달 생성 및 랜덤 문제 바인딩
+    function openSubmissionQuizModal() {
+      // 문제 은행에서 랜덤 1문항 선정
+      const randomIndex = Math.floor(Math.random() * HYGIENE_QUIZ_BANK.length);
+      activeQuizObj = HYGIENE_QUIZ_BANK[randomIndex];
+      selectedQuizOptionIndex = null;
+      isQuizAnswered = false;
+
+      // UI 요소 초기화
+      document.getElementById('quiz-question-text').textContent = activeQuizObj.question;
+
+      const container = document.getElementById('quiz-options-container');
+      container.innerHTML = '';
+
+      activeQuizObj.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'quiz-opt-btn w-full p-3 text-left rounded-xl border border-zinc-800 bg-zinc-950 text-xs text-zinc-300 hover:border-amber-500/60 hover:bg-zinc-800/50 transition-all flex items-center justify-between';
+        btn.onclick = () => selectQuizOption(idx);
+        btn.innerHTML = `
+          <span>${optText}</span>
+          <span class="quiz-check-icon w-4 h-4 rounded-full border border-zinc-700 flex items-center justify-center text-[10px] text-transparent">✓</span>
+        `;
+        container.appendChild(btn);
+      });
+
+      // 피드백 박스 숨김
+      const feedbackBox = document.getElementById('quiz-feedback-box');
+      feedbackBox.className = 'p-3.5 rounded-xl border text-xs space-y-1.5 hidden';
+      feedbackBox.innerHTML = '';
+
+      // 제출 버튼 상태 초기화
+      const actionBtn = document.getElementById('quiz-submit-action-btn');
+      actionBtn.disabled = true;
+      actionBtn.innerHTML = `<span>정답 제출 및 점검표 완료</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+
+      document.getElementById('quiz-submission-modal').classList.remove('hidden');
+      initLucide();
+    }
+
+    function selectQuizOption(index) {
+      if (isQuizAnswered) return; // 이미 답변 확인한 경우 변경 불가
+
+      selectedQuizOptionIndex = index;
+      const btns = document.querySelectorAll('.quiz-opt-btn');
+      
+      btns.forEach((btn, idx) => {
+        const checkIcon = btn.querySelector('.quiz-check-icon');
+        if (idx === index) {
+          btn.className = 'quiz-opt-btn w-full p-3 text-left rounded-xl border border-amber-500 bg-amber-950/30 text-xs text-amber-200 font-medium transition-all flex items-center justify-between shadow-sm';
+          if (checkIcon) checkIcon.className = 'quiz-check-icon w-4 h-4 rounded-full bg-amber-500 text-zinc-950 flex items-center justify-center text-[10px] font-bold';
+        } else {
+          btn.className = 'quiz-opt-btn w-full p-3 text-left rounded-xl border border-zinc-800 bg-zinc-950 text-xs text-zinc-400 hover:border-zinc-700 transition-all flex items-center justify-between';
+          if (checkIcon) checkIcon.className = 'quiz-check-icon w-4 h-4 rounded-full border border-zinc-700 flex items-center justify-center text-[10px] text-transparent';
+        }
+      });
+
+      document.getElementById('quiz-submit-action-btn').disabled = false;
+    }
+
+    // 3단계: 퀴즈 답변 확인 처리 (정답/오답 모두 점검표 제출 진행)
+    function submitQuizAnswer() {
+      if (selectedQuizOptionIndex === null) return;
+
+      const actionBtn = document.getElementById('quiz-submit-action-btn');
+
+      if (!isQuizAnswered) {
+        // 첫 클릭: 퀴즈 결과 및 해설 보여주기
+        isQuizAnswered = true;
+        const isCorrect = selectedQuizOptionIndex === activeQuizObj.answerIndex;
+        const feedbackBox = document.getElementById('quiz-feedback-box');
+
+        // 선택 옵션 버튼들의 시각적 정답/오답 처리
+        const btns = document.querySelectorAll('.quiz-opt-btn');
+        btns.forEach((btn, idx) => {
+          btn.disabled = true;
+          if (idx === activeQuizObj.answerIndex) {
+            btn.className = 'quiz-opt-btn w-full p-3 text-left rounded-xl border border-emerald-500 bg-emerald-950/40 text-xs text-emerald-200 font-bold transition-all flex items-center justify-between';
+          } else if (idx === selectedQuizOptionIndex && !isCorrect) {
+            btn.className = 'quiz-opt-btn w-full p-3 text-left rounded-xl border border-red-500 bg-red-950/40 text-xs text-red-200 font-medium transition-all flex items-center justify-between';
+          }
+        });
+
+        if (isCorrect) {
+          feedbackBox.className = 'p-3.5 rounded-xl border border-emerald-500/50 bg-emerald-950/30 text-xs space-y-1 block';
+          feedbackBox.innerHTML = `
+            <div class="font-bold text-emerald-400 flex items-center gap-1.5">
+              <i data-lucide="check-circle" class="w-4 h-4"></i> 정답입니다! (위생 지식 우수)
+            </div>
+            <p class="text-emerald-200/90 leading-relaxed">${activeQuizObj.explanation}</p>
+          `;
+        } else {
+          feedbackBox.className = 'p-3.5 rounded-xl border border-orange-500/50 bg-orange-950/30 text-xs space-y-1 block';
+          feedbackBox.innerHTML = `
+            <div class="font-bold text-orange-400 flex items-center gap-1.5">
+              <i data-lucide="alert-circle" class="w-4 h-4"></i> 오답입니다. (정답: ${activeQuizObj.options[activeQuizObj.answerIndex]})
+            </div>
+            <p class="text-orange-200/90 leading-relaxed">${activeQuizObj.explanation}</p>
+            <p class="text-[11px] text-zinc-400 pt-1">* 오답으로 등록되어도 위생점검표 제출이 가능합니다.</p>
+          `;
+        }
+
+        actionBtn.innerHTML = `<span>확인 및 점검표 제출 완료</span><i data-lucide="send" class="w-4 h-4"></i>`;
+        initLucide();
+      } else {
+        // 두 번째 클릭: 최종 점검표 DB 저장 실행
+        closeQuizModal();
+        submitInspectionData();
+      }
+    }
+
+    function cancelQuizSubmission() {
+      closeQuizModal();
+      showToast('점검표 제출이 취소되었습니다.');
+    }
+
+    function closeQuizModal() {
+      document.getElementById('quiz-submission-modal').classList.add('hidden');
+      activeQuizObj = null;
+      selectedQuizOptionIndex = null;
+      isQuizAnswered = false;
+    }
+
+    // 4단계: 최종 점검표 데이터를 저장소에 등록
+    async function submitInspectionData() {
+      const storeName = document.getElementById('form-store-name').value;
+      const inspector = document.getElementById('form-inspector').value.trim();
+      const inspectionDate = document.getElementById('form-inspection-date').value;
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const isDelayed = inspectionDate < todayStr;
 
       const itemsData = {};
       const selects = document.querySelectorAll('.item-status-select');
@@ -1256,6 +1525,7 @@
         store_evaluation: '',
         admin_comment: '',
         is_submitted: true,
+        is_delayed: isDelayed,
         created_at: new Date().toISOString()
       };
 
@@ -1267,7 +1537,7 @@
         if (window.firebaseDb && window.fbTools) {
           const { collection, addDoc } = window.fbTools;
           await addDoc(collection(window.firebaseDb, "inspection_logs"), record);
-          showToast(`위생점검표가 제출되었습니다! (${totalScore}점)`);
+          showToast(`위생점검표가 제출되었습니다! ${isDelayed ? '(지연 제출 포함)' : ''}`);
         } else {
           record.id = 'local_' + Date.now();
           saveLocalLog(record);
@@ -1276,6 +1546,7 @@
 
         document.getElementById('form-inspector').value = '';
         document.getElementById('form-store-name').selectedIndex = 0;
+        setTodayDateDefault();
         renderChecklistForm();
         
         switchStoreTab('history');
@@ -1321,7 +1592,7 @@
       if (logs.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="py-8 text-center text-zinc-500">
+            <td colspan="7" class="py-8 text-center text-zinc-500">
               조회된 위생점검 내역이 없습니다.
             </td>
           </tr>
@@ -1331,6 +1602,8 @@
 
       logs.forEach(log => {
         const hasComment = log.admin_comment && log.admin_comment.trim().length > 0;
+        const isDelayed = log.is_delayed || (log.created_at && log.inspection_date < log.created_at.slice(0, 10));
+
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-zinc-800/40 transition-colors border-b border-zinc-800/40';
         tr.innerHTML = `
@@ -1339,6 +1612,13 @@
           <td class="py-3.5 px-4 text-zinc-300">${log.inspector}</td>
           <td class="py-3.5 px-4 text-center font-mono font-bold ${log.total_score < 80 ? 'text-red-400' : 'text-emerald-400'}">
             ${log.total_score}점
+          </td>
+          <td class="py-3.5 px-4 text-center">
+            ${isDelayed 
+              ? `<span class="px-2 py-0.5 rounded-full bg-orange-950/80 text-orange-400 border border-orange-700/80 text-[10px] font-bold">
+                  <i data-lucide="clock" class="w-3 h-3 inline mr-1"></i>지연 제출
+                 </span>`
+              : `<span class="px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800 text-[10px]">정상 제출</span>`}
           </td>
           <td class="py-3.5 px-4 text-center">
             ${hasComment 
@@ -1431,13 +1711,29 @@
           const log = logMap[key];
 
           if (log) {
-            rowHtml += `
-              <td class="py-2 px-1 border-r border-zinc-800/40 text-center">
-                <button onclick="openReportModal('${log.id}')" class="w-full py-1 rounded bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-700/60 font-mono text-[11px] font-bold transition-all" title="${log.inspector} 점검 (${log.total_score}점)">
-                  ${log.total_score}점
-                </button>
-              </td>
-            `;
+            const isDelayed = log.is_delayed || (log.created_at && date < log.created_at.slice(0, 10));
+
+            if (isDelayed) {
+              rowHtml += `
+                <td class="py-2 px-1 border-r border-zinc-800/40 text-center">
+                  <button onclick="openReportModal('${log.id}')" class="w-full py-1 rounded bg-orange-950/90 hover:bg-orange-900 text-orange-300 border border-orange-600/80 font-mono text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-0.5" title="${log.inspector} 점검 (날짜 지난 지연 제출건 - ${log.total_score}점)">
+                    <i data-lucide="clock" class="w-3 h-3 text-orange-400"></i>
+                    ${log.total_score}점
+                  </button>
+                </td>
+              `;
+            } else {
+              const isScoreLow = log.total_score < 80;
+              const bgClass = isScoreLow ? 'bg-red-950/80 text-red-300 border-red-700/60' : 'bg-emerald-950/80 text-emerald-300 border-emerald-700/60';
+              
+              rowHtml += `
+                <td class="py-2 px-1 border-r border-zinc-800/40 text-center">
+                  <button onclick="openReportModal('${log.id}')" class="w-full py-1 rounded ${bgClass} hover:opacity-90 border font-mono text-[11px] font-bold transition-all" title="${log.inspector} 점검 (${log.total_score}점)">
+                    ${log.total_score}점
+                  </button>
+                </td>
+              `;
+            }
           } else {
             rowHtml += `
               <td class="py-2 px-1 border-r border-zinc-800/40 text-center">
@@ -1452,6 +1748,8 @@
         tr.innerHTML = rowHtml;
         bodyRows.appendChild(tr);
       });
+
+      initLucide();
     }
 
     function searchAdminLogs() {
@@ -1472,12 +1770,14 @@
 
       tbody.innerHTML = '';
       if (logs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-zinc-500">등록된 점검 기록이 없습니다.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-zinc-500">등록된 점검 기록이 없습니다.</td></tr>`;
         return;
       }
 
       logs.forEach(log => {
         const hasComment = log.admin_comment && log.admin_comment.trim().length > 0;
+        const isDelayed = log.is_delayed || (log.created_at && log.inspection_date < log.created_at.slice(0, 10));
+
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-zinc-800/40 border-b border-zinc-800/40';
         tr.innerHTML = `
@@ -1485,6 +1785,11 @@
           <td class="py-3 px-4 font-bold text-white">${log.store_name}</td>
           <td class="py-3 px-4 text-zinc-300">${log.inspector}</td>
           <td class="py-3 px-4 text-center font-mono font-bold ${log.total_score < 80 ? 'text-red-400' : 'text-emerald-400'}">${log.total_score}점</td>
+          <td class="py-3 px-4 text-center">
+            ${isDelayed 
+              ? `<span class="px-2 py-0.5 rounded bg-orange-950 text-orange-400 border border-orange-700/80 text-[10px] font-bold">지연 제출</span>` 
+              : `<span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px]">정상 제출</span>`}
+          </td>
           <td class="py-3 px-4">
             ${hasComment 
               ? `<span class="text-amber-400 font-medium text-xs truncate max-w-[200px] block">${log.admin_comment}</span>` 
@@ -1516,6 +1821,13 @@
       }
 
       activeInspectionRecord = record;
+
+      const isDelayed = record.is_delayed || (record.created_at && record.inspection_date < record.created_at.slice(0, 10));
+      const delayedBadge = document.getElementById('modal-delayed-badge');
+      if (delayedBadge) {
+        if (isDelayed) delayedBadge.classList.remove('hidden');
+        else delayedBadge.classList.add('hidden');
+      }
 
       document.getElementById('modal-title').textContent = `${record.store_name} 위생점검표 상세`;
       document.getElementById('modal-store-badge').textContent = record.store_name;
